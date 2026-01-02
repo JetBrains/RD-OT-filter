@@ -7,6 +7,7 @@ import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.notification.NotificationsManager
 import com.intellij.openapi.diagnostic.Logger
+import com.jetbrains.otp.span.DefaultRootSpanService
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.trace.Span
@@ -20,7 +21,7 @@ class OtpFreezeNotifier : FreezeNotifier {
         reportDir: Path,
         durationMs: Long
     ) {
-        Span.current().addEvent(
+        DefaultRootSpanService.currentSpan().addEvent(
             "ui.frozen",
             Attributes.of(
                 AttributeKey.stringKey("message"), event.throwable.message

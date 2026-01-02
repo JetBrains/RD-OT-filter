@@ -8,7 +8,6 @@ import com.jetbrains.thinclient.diagnostics.ThinClientConnectionState
 import com.jetbrains.thinclient.diagnostics.ThinClientDiagnosticsService
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.common.Attributes
-import io.opentelemetry.api.trace.Span
 
 class ConnectionStateListener : ProjectActivity {
     override suspend fun execute(project: Project) {
@@ -18,7 +17,7 @@ class ConnectionStateListener : ProjectActivity {
                 is ThinClientConnectionState.WireNotConnected, is ThinClientConnectionState.NoUiThreadPing -> {
                     if (connected == false) return@advise
                     connected = false
-                    Span.current().addEvent(
+                    DefaultRootSpanService.currentSpan().addEvent(
                         "connection.dropped",
                         Attributes.of(
                             AttributeKey.stringKey("project"), project.name
@@ -28,7 +27,7 @@ class ConnectionStateListener : ProjectActivity {
                 is ThinClientConnectionState.Connected -> {
                     if (connected == true) return@advise
                     connected = true
-                    Span.current().addEvent("connection.established")
+                    DefaultRootSpanService.currentSpan().addEvent("connection.established")
                 }
                 else -> {}
             }

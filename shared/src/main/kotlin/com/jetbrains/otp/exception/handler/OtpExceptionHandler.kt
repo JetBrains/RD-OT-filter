@@ -7,9 +7,9 @@ import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ex.ActionContextElement
 import com.intellij.openapi.application.Interactive
 import com.intellij.openapi.application.impl.CoroutineExceptionHandlerImpl
+import com.jetbrains.otp.span.DefaultRootSpanService
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.common.Attributes
-import io.opentelemetry.api.trace.Span
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
@@ -19,7 +19,7 @@ class OtpExceptionHandler : AbstractCoroutineContextElement(CoroutineExceptionHa
         ORIGINAL_HANDLER.handleException(context, exception)
         val action = getCurrentActionName(context)
         val plugin = PluginUtil.getInstance().findPluginId(exception)?.idString
-        Span.current().recordException(exception, Attributes.of(
+        DefaultRootSpanService.currentSpan().recordException(exception, Attributes.of(
             AttributeKey.stringKey("action"), action,
             AttributeKey.stringKey("plugin"), plugin
         ))
