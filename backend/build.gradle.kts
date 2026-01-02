@@ -1,4 +1,5 @@
 import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
+import org.jetbrains.intellij.platform.gradle.ProductMode
 
 version = "1.0"
 
@@ -9,10 +10,11 @@ plugins {
 dependencies {
     intellijPlatform {
         create(IntelliJPlatformType.IntellijIdeaUltimate, libs.versions.ij.platform) {
-            useInstaller = false
+            productMode = ProductMode.BACKEND
         }
         pluginModule(implementation(project(":shared")))
         bundledModule("intellij.platform.rpc.backend")
         bundledModule("intellij.platform.backend")
+        bundledModule("com.jetbrains.codeWithMe")
     }
 }
