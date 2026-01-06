@@ -1,8 +1,6 @@
 package com.jetbrains.otp.span
 
 import com.intellij.ide.AppLifecycleListener
-import com.intellij.openapi.Disposable
-import com.intellij.openapi.application.Application
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
@@ -16,7 +14,6 @@ import io.opentelemetry.context.Scope
 @Suppress("UnstableApiUsage")
 @Service(Service.Level.APP)
 class DefaultRootSpanService : AppLifecycleListener {
-    private val tracer = GlobalOpenTelemetry.get().getTracer("com.jetbrains.otp.diagnostic")
 
     @Volatile
     private var currentSpan: Span? = null
@@ -44,7 +41,7 @@ class DefaultRootSpanService : AppLifecycleListener {
         currentScope?.close()
         currentSpan?.end()
 
-        currentSpan = tracer.spanBuilder("remote-dev-session")
+        currentSpan = TRACER.spanBuilder("remote-dev-session")
             .setAllAttributes(
                 Attributes.of(
                     AttributeKey.stringKey("session.id"), sessionId
@@ -68,7 +65,7 @@ class DefaultRootSpanService : AppLifecycleListener {
     @Synchronized
     private fun getOrCreateDefaultSpan(): Span {
         if (defaultSpan == null) {
-            defaultSpan = tracer.spanBuilder("application-init")
+            defaultSpan = TRACER.spanBuilder("application-init")
                 .startSpan()
             defaultScope = defaultSpan!!.makeCurrent()
         }
@@ -94,5 +91,7 @@ class DefaultRootSpanService : AppLifecycleListener {
             }
             return instance.getOrCreateDefaultSpan()
         }
+
+        val TRACER = GlobalOpenTelemetry.get().getTracer("com.jetbrains.otp.diagnostic")
     }
 }
