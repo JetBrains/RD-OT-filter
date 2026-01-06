@@ -6,28 +6,31 @@ import com.intellij.openapi.startup.ProjectActivity
 import com.jetbrains.otp.span.DefaultRootSpanService
 import com.jetbrains.thinclient.diagnostics.ThinClientConnectionState
 import com.jetbrains.thinclient.diagnostics.ThinClientDiagnosticsService
-import io.opentelemetry.api.common.AttributeKey
-import io.opentelemetry.api.common.Attributes
+import io.opentelemetry.api.trace.Span
 
 class ConnectionStateListener : ProjectActivity {
     override suspend fun execute(project: Project) {
         var connected: Boolean? = null
+        var reconnectionSpan: Span? = null
+        val tracer = DefaultRootSpanService.TRACER
+
         ThinClientDiagnosticsService.getInstance(project).connectionState.advise(project.lifetime) {
             when (it) {
                 is ThinClientConnectionState.WireNotConnected, is ThinClientConnectionState.NoUiThreadPing -> {
                     if (connected == false) return@advise
                     connected = false
-                    DefaultRootSpanService.currentSpan().addEvent(
-                        "connection.dropped",
-                        Attributes.of(
-                            AttributeKey.stringKey("project"), project.name
-                        )
-                    )
+
+                    reconnectionSpan?.end()
+                    reconnectionSpan = tracer.spanBuilder("connection-dropped-reconnecting")
+                        .setParent(io.opentelemetry.context.Context.current().with(DefaultRootSpanService.currentSpan()))
+                        .startSpan()
                 }
                 is ThinClientConnectionState.Connected -> {
                     if (connected == true) return@advise
                     connected = true
-                    DefaultRootSpanService.currentSpan().addEvent("connection.established")
+
+                    reconnectionSpan?.end()
+                    reconnectionSpan = null
                 }
                 else -> {}
             }
