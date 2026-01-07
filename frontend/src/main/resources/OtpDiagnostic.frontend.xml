@@ -11,7 +11,6 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <openTelemetryExporterProvider implementation="com.jetbrains.otp.exporter.FrontendMetricExporter"/>
-        <diagnostic.freezeNotifier implementation="com.jetbrains.otp.freeze.OtpFreezeNotifier"/>
 
         <postStartupActivity implementation="com.jetbrains.otp.connection.ConnectionStateListener"/>
     </extensions>
