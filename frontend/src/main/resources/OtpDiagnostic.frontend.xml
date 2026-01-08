@@ -13,5 +13,15 @@
         <openTelemetryExporterProvider implementation="com.jetbrains.otp.exporter.FrontendMetricExporter"/>
 
         <postStartupActivity implementation="com.jetbrains.otp.connection.ConnectionStateListener"/>
+
+        <applicationConfigurable
+            parentId="tools"
+            instance="com.jetbrains.otp.settings.OtpDiagnosticConfigurable"
+            id="com.jetbrains.otp.settings.OtpDiagnosticConfigurable"
+            bundle="messages.OtpDiagnosticBundle"
+            key="settings.displayName"/>
+
+        <applicationService serviceInterface="com.jetbrains.otp.settings.SpanFilterService"
+                            serviceImplementation="com.jetbrains.otp.settings.FrontendSpanFilterService"/>
     </extensions>
 </idea-plugin>
