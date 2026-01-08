@@ -8,6 +8,10 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <openTelemetryExporterProvider implementation="com.jetbrains.otp.exporter.BackendMetricExporter"/>
+
+        <applicationService serviceInterface="com.jetbrains.otp.settings.SpanFilterService"
+                            serviceImplementation="com.jetbrains.otp.settings.BackendSpanFilterService"/>
+        <platform.rpc.backend.remoteApiProvider implementation="com.jetbrains.otp.settings.OtpDiagnosticSettingsApiProvider"/>
     </extensions>
 
     <applicationListeners>

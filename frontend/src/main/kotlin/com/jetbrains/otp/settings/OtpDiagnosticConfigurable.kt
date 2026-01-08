@@ -4,12 +4,17 @@ import com.intellij.openapi.options.Configurable
 import com.intellij.platform.diagnostic.telemetry.spans.SpanNameRegistry
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.dsl.builder.panel
+import com.jetbrains.otp.settings.api.OtpDiagnosticSettingsApi
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.swing.JComponent
 
 class OtpDiagnosticConfigurable : Configurable {
 
     private val settings = OtpDiagnosticSettings.getInstance()
     private val groupCheckboxes = mutableMapOf<String, JBCheckBox>()
+    private val coroutineScope = CoroutineScope(Dispatchers.Default)
 
     override fun getDisplayName(): String = OtpDiagnosticBundle.message("settings.displayName")
 
@@ -44,6 +49,16 @@ class OtpDiagnosticConfigurable : Configurable {
     override fun apply() {
         groupCheckboxes.forEach { (groupName, checkbox) ->
             settings.setGroupEnabled(groupName, checkbox.isSelected)
+        }
+
+        val disabledGroups = SpanNameRegistry.allGroups
+            .map { it.groupName }
+            .filter { !settings.isGroupEnabled(it) }
+            .toSet()
+
+        coroutineScope.launch {
+            val backendSettings = OtpDiagnosticSettingsApi.getInstance()
+            backendSettings.syncDisabledGroups(disabledGroups)
         }
     }
 
