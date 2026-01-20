@@ -10,24 +10,6 @@ import kotlin.collections.forEach
 
 class FrontendMetricExporter : FilteredMetricExporterProvider() {
     override fun getUnderlyingExporter(): MetricExporter {
-        return LogExporter()
+        return OtlpMetricExporterFactory.create() ?: throw IllegalStateException("Metric exporter not initialized")
     }
-}
-
-class LogExporter : MetricExporter {
-    companion object {
-        private val LOG = Logger.getInstance(LogExporter::class.java)
-    }
-
-    override fun export(metrics: Collection<MetricData>): CompletableResultCode {
-        metrics.forEach { LOG.info("Frontend metric received ${it.name} ${it.data}") }
-        return CompletableResultCode.ofSuccess()
-    }
-
-    override fun flush(): CompletableResultCode = CompletableResultCode.ofSuccess()
-
-    override fun shutdown(): CompletableResultCode = CompletableResultCode.ofSuccess()
-
-    override fun getAggregationTemporality(instrumentType: InstrumentType): AggregationTemporality =
-        AggregationTemporality.DELTA
 }
