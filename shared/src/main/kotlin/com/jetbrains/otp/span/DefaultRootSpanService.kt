@@ -28,7 +28,7 @@ class DefaultRootSpanService : AppLifecycleListener {
     private var defaultScope: Scope? = null
 
     init {
-        ApplicationManager.getApplication().messageBus.simpleConnect().subscribe(AppLifecycleListener.TOPIC, this)
+        ApplicationManager.getApplication().messageBus.connect().subscribe(AppLifecycleListener.TOPIC, this)
     }
 
     @Synchronized

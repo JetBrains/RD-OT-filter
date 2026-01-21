@@ -22,7 +22,6 @@ class ConnectionStateListener : ProjectActivity {
 
                     reconnectionSpan?.end()
                     reconnectionSpan = tracer.spanBuilder("connection-dropped-reconnecting")
-                        .setParent(io.opentelemetry.context.Context.current().with(DefaultRootSpanService.currentSpan()))
                         .startSpan()
                 }
                 is ThinClientConnectionState.Connected -> {

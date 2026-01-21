@@ -14,9 +14,4 @@
         <platform.rpc.backend.remoteApiProvider implementation="com.jetbrains.otp.settings.OtpDiagnosticSettingsApiProvider"/>
         <platform.rpc.backend.remoteApiProvider implementation="com.jetbrains.otp.span.OtpSessionSpanApiProvider"/>
     </extensions>
-
-    <applicationListeners>
-        <listener topic="com.jetbrains.rdserver.core.RemoteClientSessionListener"
-                  class="com.jetbrains.otp.connection.HostSessionSpanUpdater"/>
-    </applicationListeners>
 </idea-plugin>
