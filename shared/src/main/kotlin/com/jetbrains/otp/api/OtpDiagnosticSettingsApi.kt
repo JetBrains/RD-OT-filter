@@ -1,4 +1,4 @@
-package com.jetbrains.otp.settings.api
+package com.jetbrains.otp.api
 
 import com.intellij.platform.rpc.RemoteApiProviderService
 import fleet.rpc.RemoteApi

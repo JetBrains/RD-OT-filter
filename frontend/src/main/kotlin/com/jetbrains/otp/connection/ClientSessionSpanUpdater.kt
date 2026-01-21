@@ -5,7 +5,7 @@ import com.intellij.openapi.client.ClientAppSession
 import com.intellij.platform.frontend.split.connection.ConnectionInfoProvider
 import com.jetbrains.otp.span.DefaultRootSpanService
 import com.jetbrains.otp.span.SessionSpanListener
-import com.jetbrains.otp.span.api.OtpSessionSpanApi
+import com.jetbrains.otp.api.OtpSessionSpanApi
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rdclient.connection.ClientSessionListener
 import com.jetbrains.thinclient.ThinClientId

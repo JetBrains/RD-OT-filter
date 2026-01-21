@@ -1,6 +1,6 @@
 package com.jetbrains.otp.settings
 
-import com.jetbrains.otp.settings.api.OtpDiagnosticSettingsApi
+import com.jetbrains.otp.api.OtpDiagnosticSettingsApi
 
 internal class BackendOtpDiagnosticSettingsApiImpl : OtpDiagnosticSettingsApi {
     override suspend fun syncDisabledGroups(disabledGroups: Set<String>) {
