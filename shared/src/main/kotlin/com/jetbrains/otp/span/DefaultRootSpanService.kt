@@ -37,6 +37,7 @@ class DefaultRootSpanService : AppLifecycleListener {
         currentSpan?.end()
 
         currentSpan = TRACER.spanBuilder("remote-dev-session")
+            .setNoParent()
             .setAllAttributes(
                 Attributes.of(
                     AttributeKey.stringKey("session.id"), sessionId
