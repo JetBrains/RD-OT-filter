@@ -7,6 +7,7 @@ import com.jetbrains.otp.span.DefaultRootSpanService
 import com.jetbrains.thinclient.diagnostics.ThinClientConnectionState
 import com.jetbrains.thinclient.diagnostics.ThinClientDiagnosticsService
 import io.opentelemetry.api.trace.Span
+import io.opentelemetry.api.trace.StatusCode
 
 class ConnectionStateListener : ProjectActivity {
     override suspend fun execute(project: Project) {
@@ -23,6 +24,7 @@ class ConnectionStateListener : ProjectActivity {
                     reconnectionSpan?.end()
                     reconnectionSpan = tracer.spanBuilder("connection-dropped-reconnecting")
                         .startSpan()
+                    reconnectionSpan?.setStatus(StatusCode.ERROR)
                 }
                 is ThinClientConnectionState.Connected -> {
                     if (connected == true) return@advise

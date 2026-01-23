@@ -7,6 +7,7 @@ import com.intellij.openapi.diagnostic.IdeaLogRecordFormatter
 import io.opentelemetry.api.GlobalOpenTelemetry
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.common.Attributes
+import io.opentelemetry.api.trace.StatusCode
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.nio.file.Path
@@ -32,6 +33,8 @@ class OtpFreezeNotifier : FreezeNotifier {
                     AttributeKey.longKey("duration.ms"), durationMs
                 )
             ).startSpan()
+
+        span.setStatus(StatusCode.ERROR)
 
         span.end(endTime)
     }
