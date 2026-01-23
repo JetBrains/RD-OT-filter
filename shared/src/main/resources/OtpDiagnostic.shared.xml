@@ -3,6 +3,9 @@
         <extensionPoint name="allowedMetricsProvider"
                         interface="com.jetbrains.otp.exporter.AllowedMetricsProvider"
                         dynamic="true"/>
+        <extensionPoint name="spanProcessorProvider"
+                        interface="com.jetbrains.otp.exporter.processor.SpanProcessorProvider"
+                        dynamic="true"/>
     </extensionPoints>
     <extensions defaultExtensionNs="com.intellij">
         <postStartupActivity implementation="com.jetbrains.otp.exception.handler.ErrorToSpanHandlerActivationActivity"/>
