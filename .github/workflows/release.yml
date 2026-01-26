@@ -1,0 +1,91 @@
+name: Publish Plugin Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+      - 'v*-test'  # Allow test tags like v1.0.5-test
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Extract version from tag
+        id: extract_version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Build plugin
+        run: ./gradlew buildPlugin
+
+      - name: Find plugin artifact
+        id: find_artifact
+        run: |
+          ARTIFACT_PATH=$(find build/distributions -name "*.zip" | head -n 1)
+          echo "artifact_path=$ARTIFACT_PATH" >> $GITHUB_OUTPUT
+          echo "artifact_name=$(basename $ARTIFACT_PATH)" >> $GITHUB_OUTPUT
+          echo "Found artifact: $ARTIFACT_PATH"
+
+      - name: Generate updatePlugins.xml
+        run: |
+          cat > updatePlugins.xml << 'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <plugins>
+            <plugin id="com.jetbrains.otp.diagnostic"
+                    url="https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/${{ steps.find_artifact.outputs.artifact_name }}"
+                    version="${{ steps.extract_version.outputs.version }}">
+              <idea-version since-build="241.0" until-build="253.*" />
+              <name>OpenTelemetry Diagnostic</name>
+              <description><![CDATA[
+                Advanced diagnostic plugin for IntelliJ Platform with OpenTelemetry integration.
+
+                Features:
+                <ul>
+                    <li>Export telemetry spans to Honeycomb via OTLP</li>
+                    <li>Track exceptions with OpenTelemetry spans</li>
+                    <li>Monitor frontend and backend metrics separately</li>
+                    <li>Support for remote development diagnostics</li>
+                </ul>
+
+                Configuration:
+                <ul>
+                    <li>Set HONEYCOMB_API_KEY environment variable or honeycomb.api.key system property</li>
+                    <li>Optional: Set HONEYCOMB_DATASET environment variable (default: intellij-plugin)</li>
+                </ul>
+              ]]></description>
+              <change-notes><![CDATA[
+                See release notes at: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}
+              ]]></change-notes>
+            </plugin>
+          </plugins>
+          EOF
+          cat updatePlugins.xml
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ${{ steps.find_artifact.outputs.artifact_path }}
+            updatePlugins.xml
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-test') }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
