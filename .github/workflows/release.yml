@@ -4,8 +4,7 @@ on:
   push:
     tags:
       - 'v*'
-    branches:
-      - 'test-release'  # Remove this after testing
+      - 'v*-test'  # Allow test tags like v1.0.5-test
 
 jobs:
   build-and-release:
