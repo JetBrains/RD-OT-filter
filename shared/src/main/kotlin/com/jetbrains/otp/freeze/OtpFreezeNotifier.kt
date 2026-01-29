@@ -29,8 +29,7 @@ class OtpFreezeNotifier : FreezeNotifier {
             .setStartTimestamp(startTime)
             .setAllAttributes(
                 Attributes.of(
-                    AttributeKey.stringKey("stackTrace"), getAbbreviatedStackTrace(event.throwable),
-                    AttributeKey.longKey("duration.ms"), durationMs
+                    AttributeKey.stringKey("stackTrace"), getAbbreviatedStackTrace(event.throwable)
                 )
             ).startSpan()
 
@@ -42,20 +41,60 @@ class OtpFreezeNotifier : FreezeNotifier {
     fun getAbbreviatedStackTrace(throwable: Throwable): String {
         val sw = StringWriter()
         throwable.printStackTrace(PrintWriter(sw))
-        return sw.toString().lines().joinToString("\n") { line ->
+        return abbreviateStackTraces(sw.toString())
+    }
+
+    internal fun abbreviateStackTraces(stackTraceText: String): String {
+        return stackTraceText.lines().joinToString("\n") { line ->
             if (line.trimStart().startsWith("at ")) {
-                val abbreviated = IdeaLogRecordFormatter.smartAbbreviate(
-                    line.substringAfter("at ").substringBefore("(")
-                )
+                val fullName = line.substringAfter("at ").substringBefore("(")
+                val abbreviated = abbreviateFullyQualifiedName(fullName)
                 if (abbreviated != null) {
-                    line.replace(
-                        line.substringAfter("at ").substringBefore("("),
-                        abbreviated
-                    )
+                    line.replace(fullName, abbreviated)
                 } else line
             } else {
                 line
             }
         }
+    }
+    
+    internal fun abbreviateFullyQualifiedName(fullName: String): String? {
+        val className = if (fullName.contains('/')) {
+            fullName.substringAfter('/')
+        } else {
+            fullName
+        }
+
+        val abbreviatablePrefixes = listOf(
+            "java.", "javax.", "jdk.", "sun.",
+            "com.intellij.", "com.jetbrains.", "org.jetbrains."
+        )
+
+        if (abbreviatablePrefixes.none { className.startsWith(it) }) {
+            return null
+        }
+            
+        val parts = className.split('.')
+        var classNameIndex = parts.size - 1
+        for (i in parts.indices.reversed()) {
+            if (parts[i].isNotEmpty() && parts[i][0].isUpperCase()) {
+                classNameIndex = i
+                break
+            }
+        }
+
+        val result = StringBuilder()
+        for (i in 0 until classNameIndex) {
+            result.append(parts[i][0]).append('.')
+        }
+
+        for (i in classNameIndex until parts.size) {
+            if (i > classNameIndex) {
+                result.append('.')
+            }
+            result.append(parts[i])
+        }
+
+        return result.toString()
     }
 }
