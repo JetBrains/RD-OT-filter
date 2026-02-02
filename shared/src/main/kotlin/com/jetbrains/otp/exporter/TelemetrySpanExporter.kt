@@ -13,14 +13,21 @@ import java.util.concurrent.TimeUnit
 
 @Service(Service.Level.APP)
 class TelemetrySpanExporter {
-    private val spanExporter: SpanExporter? by lazy { OtlpSpanExporterFactory.create() }
-
-    private val sessionProcessor = SessionProcessor
-
     private val processors = createProcessors()
 
+    @Volatile
+    private var spanExporter: SpanExporter? = null
+
+    suspend fun initExporter(config: OtlpConfig) {
+        try {
+            spanExporter = OtlpSpanExporterFactory.create(config)
+        } catch (e: Exception) {
+            LOG.error("Failed to initialize OTLP span exporter", e)
+        }
+    }
+
     private fun createProcessors(): List<SpanProcessor> {
-        val processors = mutableListOf<SpanProcessor>(sessionProcessor)
+        val processors = mutableListOf<SpanProcessor>(SessionProcessor)
 
         SpanProcessorProvider.EP_NAME.extensionList.forEach { provider ->
             processors.addAll(provider.getProcessors())

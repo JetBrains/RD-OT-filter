@@ -16,6 +16,8 @@ interface CryptoRpc : RemoteApi<Unit> {
 
     suspend fun sendEncryptedData(data: EncryptedData): String
 
+    suspend fun getEncryptedHoneycombApiKey(): EncryptedData
+
     companion object {
         @JvmStatic
         suspend fun getInstance(): CryptoRpc {

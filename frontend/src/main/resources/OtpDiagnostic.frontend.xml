@@ -11,11 +11,13 @@
 
     <extensions defaultExtensionNs="com.jetbrains.otp.diagnostic">
         <spanProcessorProvider implementation="com.jetbrains.otp.exporter.FrontendSpanProcessorProvider"/>
+        <otlpConfigProvider implementation="com.jetbrains.otp.exporter.RemoteOtlpConfigProvider"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
         <openTelemetryExporterProvider implementation="com.jetbrains.otp.exporter.FrontendMetricExporter"/>
 
+        <postStartupActivity implementation="com.jetbrains.otp.exporter.FrontendOtlpInitializer"/>
         <postStartupActivity implementation="com.jetbrains.otp.connection.ConnectionStateListener"/>
 
         <applicationConfigurable

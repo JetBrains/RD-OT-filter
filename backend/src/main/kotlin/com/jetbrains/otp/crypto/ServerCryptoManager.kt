@@ -1,6 +1,6 @@
 package com.jetbrains.otp.crypto
 
-import java.security.PublicKey
+
 import javax.crypto.SecretKey
 
 class ServerCryptoManager {

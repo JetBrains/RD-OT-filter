@@ -6,6 +6,9 @@
         <extensionPoint name="spanProcessorProvider"
                         interface="com.jetbrains.otp.exporter.processor.SpanProcessorProvider"
                         dynamic="true"/>
+        <extensionPoint name="otlpConfigProvider"
+                        interface="com.jetbrains.otp.exporter.OtlpConfigProvider"
+                        dynamic="true"/>
     </extensionPoints>
     <extensions defaultExtensionNs="com.intellij">
         <postStartupActivity implementation="com.jetbrains.otp.exception.handler.ErrorToSpanHandlerActivationActivity"/>
