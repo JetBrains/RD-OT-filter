@@ -80,7 +80,9 @@ object SessionProcessor : SpanProcessor {
         metaSpan.setAttribute("session.span_id", context.spanId)
         hostName?.let { metaSpan.setAttribute("host-name", it) }
         sessionId?.let { metaSpan.setAttribute("session.id", it) }
-        metaSpan.end(Instant.now().plusSeconds(2))
+
+        val endTime = Instant.ofEpochSecond(0, startTimeNanos).plusSeconds(2)
+        metaSpan.end(endTime)
     }
 
     private fun bufferIfNeeded(spans: Collection<SpanData>): Collection<SpanData> {
